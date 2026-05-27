@@ -321,3 +321,247 @@ document.querySelectorAll(".style-card-btn").forEach(btn => {
         showPage("generate");
     });
 });
+
+// ===================== INTERACTIVE EFFECTS & ANIMATIONS =====================
+document.addEventListener("mousemove", e => {
+    document.documentElement.style.setProperty("--mouse-x", `${e.clientX}px`);
+    document.documentElement.style.setProperty("--mouse-y", `${e.clientY}px`);
+});
+
+// ===================== AI CHAT SYSTEM =====================
+const chatInput = document.getElementById("chat-input");
+const chatSendBtn = document.getElementById("chat-send-btn");
+const chatMessagesContainer = document.getElementById("chat-messages");
+const clearChatBtn = document.getElementById("clear-chat-btn");
+
+let chatHistory = [];
+
+// Helper: Scroll chat to bottom
+function scrollChatToBottom() {
+    chatMessagesContainer.scrollTo({
+        top: chatMessagesContainer.scrollHeight,
+        behavior: "smooth"
+    });
+}
+
+// Helper: Parse message text to basic HTML (bold, lists, code blocks, etc.)
+function parseMarkdown(text) {
+    let html = text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+    
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    
+    // Code blocks/backticks
+    html = html.replace(/`(.*?)`/g, "<code>$1</code>");
+    
+    // Unordered lists
+    if (html.includes("\n- ") || html.includes("\n* ")) {
+        const lines = html.split("\n");
+        let inList = false;
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith("- ") || lines[i].startsWith("* ")) {
+                let itemContent = lines[i].substring(2);
+                if (!inList) {
+                    lines[i] = "<ul><li>" + itemContent + "</li>";
+                    inList = true;
+                } else {
+                    lines[i] = "<li>" + itemContent + "</li>";
+                }
+            } else {
+                if (inList) {
+                    lines[i] = "</ul>" + lines[i];
+                    inList = false;
+                }
+            }
+        }
+        if (inList) {
+            lines[lines.length - 1] += "</ul>";
+        }
+        html = lines.join("\n");
+    }
+
+    // Line breaks
+    html = html.replace(/\n/g, "<br>");
+    return html;
+}
+
+// Helper: Extract suggested prompt from message (inside backticks or quotes)
+function extractSuggestedPrompt(text) {
+    // Try backticks first
+    const backtickMatch = text.match(/`(.*?)`/);
+    if (backtickMatch && backtickMatch[1]) {
+        return backtickMatch[1].trim();
+    }
+    // Try double quotes
+    const quoteMatch = text.match(/"([^"]{10,250})"/);
+    if (quoteMatch && quoteMatch[1]) {
+        return quoteMatch[1].trim();
+    }
+    // Fallback: if message is short enough, return the whole thing
+    if (text.length < 150 && !text.includes("\n")) {
+        return text.trim();
+    }
+    return null;
+}
+
+// Render message in DOM
+function appendChatMessage(sender, contentText) {
+    const isAI = sender === "ai";
+    const msgDiv = document.createElement("div");
+    msgDiv.className = `message ${isAI ? 'ai-message' : 'user-message'}`;
+    
+    const parsedHTML = parseMarkdown(contentText);
+    const suggestedPrompt = isAI ? extractSuggestedPrompt(contentText) : null;
+    
+    let bubbleContent = `<div class="message-bubble">${parsedHTML}`;
+    
+    // Add custom interaction buttons inside AI responses if a prompt is detected!
+    if (isAI && suggestedPrompt) {
+        bubbleContent += `
+            <div class="chat-bubble-actions">
+                <button class="chat-bubble-btn use-this-prompt" data-prompt="${suggestedPrompt.replace(/"/g, '&quot;')}">🚀 Use in Generator</button>
+                <button class="chat-bubble-btn copy-suggested" data-prompt="${suggestedPrompt.replace(/"/g, '&quot;')}">📋 Copy Prompt</button>
+            </div>
+        `;
+    }
+    bubbleContent += `</div>`;
+    
+    msgDiv.innerHTML = `
+        <div class="message-avatar">${isAI ? '🤖' : '👤'}</div>
+        ${bubbleContent}
+    `;
+    
+    chatMessagesContainer.appendChild(msgDiv);
+    
+    // Wire up events for custom action buttons inside bubble
+    if (isAI && suggestedPrompt) {
+        msgDiv.querySelector(".use-this-prompt")?.addEventListener("click", () => {
+            promptInput.value = suggestedPrompt;
+            showPage("generate");
+            showToast("Prompt copied to generator! ✨");
+        });
+        msgDiv.querySelector(".copy-suggested")?.addEventListener("click", () => {
+            navigator.clipboard.writeText(suggestedPrompt).then(() => {
+                showToast("Prompt copied to clipboard!");
+            });
+        });
+    }
+    
+    scrollChatToBottom();
+}
+
+// Show animated typing indicator
+let typingIndicator = null;
+function showTypingIndicator() {
+    if (typingIndicator) return;
+    
+    typingIndicator = document.createElement("div");
+    typingIndicator.className = "message ai-message";
+    typingIndicator.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-bubble">
+            <div class="typing-loader">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+    `;
+    chatMessagesContainer.appendChild(typingIndicator);
+    scrollChatToBottom();
+}
+
+function removeTypingIndicator() {
+    if (typingIndicator) {
+        typingIndicator.remove();
+        typingIndicator = null;
+    }
+}
+
+// Send message function
+async function sendChatMessage(text) {
+    if (!text || !text.trim()) return;
+    const msg = text.trim();
+    chatInput.value = "";
+    
+    // Add user message to DOM and history
+    appendChatMessage("user", msg);
+    chatHistory.push({ role: "user", content: msg });
+    
+    // Limit history length to maintain fast response and save token cost (excellent credit efficiency)
+    if (chatHistory.length > 12) {
+        chatHistory = chatHistory.slice(-12);
+    }
+    
+    showTypingIndicator();
+    chatSendBtn.disabled = true;
+    
+    try {
+        const response = await fetch("/api/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ messages: chatHistory })
+        });
+        
+        removeTypingIndicator();
+        chatSendBtn.disabled = false;
+        
+        if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+        }
+        
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
+        
+        const reply = data.response;
+        appendChatMessage("ai", reply);
+        chatHistory.push({ role: "assistant", content: reply });
+        
+    } catch (err) {
+        console.error("Chat Error:", err);
+        removeTypingIndicator();
+        chatSendBtn.disabled = false;
+        appendChatMessage("ai", "⚠️ Sorry, I encountered an issue connecting to the AI brain. Please try again in a moment.");
+    }
+}
+
+// Send button events
+chatSendBtn.addEventListener("click", () => sendChatMessage(chatInput.value));
+chatInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") sendChatMessage(chatInput.value);
+});
+
+// Quick suggestion buttons
+document.querySelectorAll(".suggestion-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        const text = btn.dataset.text;
+        sendChatMessage(text);
+    });
+});
+
+// Clear Chat History
+clearChatBtn.addEventListener("click", () => {
+    chatMessagesContainer.innerHTML = `
+        <div class="message ai-message">
+            <div class="message-avatar">🤖</div>
+            <div class="message-bubble">
+                <p>Hey there! I am <strong>Nova</strong>, your AI creative assistant. I'm connected to the generator systems and can help you:</p>
+                <ul>
+                  <li>💡 Design intricate, highly visual prompts for wallpapers &amp; logos</li>
+                  <li>🎨 Suggest the perfect aesthetic styles (e.g. Neo-cyberpunk, oil painting, watercolor)</li>
+                  <li>🚀 Enhance your descriptions for maximum image quality</li>
+                </ul>
+                <p>Try one of the quick suggestions below, or ask me anything!</p>
+            </div>
+        </div>
+    `;
+    chatHistory = [];
+    showToast("Chat history cleared!");
+});

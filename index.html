@@ -11,6 +11,7 @@
 
   <div class="background-glow"></div>
   <div class="background-glow glow-2"></div>
+  <div class="mouse-glow" id="mouse-glow"></div>
 
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
@@ -21,6 +22,7 @@
     <div class="nav-links">
       <button class="nav-btn active" data-page="generate">Generate</button>
       <button class="nav-btn" data-page="styles">Styles</button>
+      <button class="nav-btn" data-page="chat">💬 Chat</button>
       <button class="nav-btn" data-page="gallery">Gallery <span class="gallery-count" id="nav-count" style="display:none"></span></button>
     </div>
   </nav>
@@ -185,6 +187,59 @@
         <div class="style-card-name">Fantasy</div>
         <div class="style-card-desc">Magical worlds and epic concept art</div>
         <button class="style-card-btn">Use Style</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGE: CHAT -->
+  <section class="page" id="page-chat">
+    <header>
+      <h1>Nova AI Chat</h1>
+      <p>Brainstorm creative prompt ideas, style combinations, and wallpaper/logo layouts</p>
+    </header>
+
+    <div class="chat-container">
+      <div class="chat-header">
+        <div class="chat-status">
+          <span class="status-dot"></span>
+          <span>Nova Companion is online</span>
+        </div>
+        <button class="clear-chat-btn" id="clear-chat-btn" title="Clear chat history">🧹 Clear</button>
+      </div>
+      
+      <div class="chat-messages" id="chat-messages">
+        <div class="message ai-message">
+          <div class="message-avatar">🤖</div>
+          <div class="message-bubble">
+            <p>Hey there! I am <strong>Nova</strong>, your AI creative assistant. I'm connected to the generator systems and can help you:</p>
+            <ul>
+              <li>💡 Design intricate, highly visual prompts for wallpapers &amp; logos</li>
+              <li>🎨 Suggest the perfect aesthetic styles (e.g. Neo-cyberpunk, oil painting, watercolor)</li>
+              <li>🚀 Enhance your descriptions for maximum image quality</li>
+            </ul>
+            <p>Try one of the quick suggestions below, or ask me anything!</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHAT QUICK SUGGESTIONS -->
+      <div class="chat-suggestions-container">
+        <div class="chat-suggestions-label">Brainstorming Starters:</div>
+        <div class="chat-suggestions" id="chat-suggestions">
+          <button class="suggestion-btn" data-text="Suggest a gorgeous synthwave wallpaper prompt featuring a glowing futuristic vehicle">🌆 Synthwave Car</button>
+          <button class="suggestion-btn" data-text="Create a minimal, elegant, mythical phoenix logo prompt in gold and deep black">✦ Phoenix Logo</button>
+          <button class="suggestion-btn" data-text="Give me an ultra-detailed cinematic prompt for a fantasy treehouse at twilight">🌳 Fantasy Treehouse</button>
+          <button class="suggestion-btn" data-text="Help me write a photorealistic prompt for a cute astronaut otter in outer space">🦦 Astronaut Otter</button>
+        </div>
+      </div>
+
+      <!-- CHAT INPUT -->
+      <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="Type your creative concept here..." autocomplete="off">
+        <button class="chat-send-btn" id="chat-send-btn">
+          <span>Send</span>
+          <span class="send-icon">⚡</span>
+        </button>
       </div>
     </div>
   </section>
