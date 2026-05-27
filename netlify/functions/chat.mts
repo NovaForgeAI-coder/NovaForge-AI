@@ -9,16 +9,28 @@ export default async (req: Request, context: Context) => {
   try {
     const { messages } = await req.json()
 
-    // Read injected AI Gateway variables
-    const gatewayBaseUrl = Netlify.env.get('NETLIFY_AI_GATEWAY_BASE_URL') || 'https://api.netlify.com/api/v1/ai'
+    // Support both direct OpenAI API keys and Netlify's AI Gateway
+    const openaiApiKey = Netlify.env.get('OPENAI_API_KEY')
     const gatewayKey = Netlify.env.get('NETLIFY_AI_GATEWAY_KEY')
 
-    // Call the OpenAI completions endpoint via AI Gateway using gpt-4o-mini for maximum speed and cost efficiency
-    const response = await fetch(`${gatewayBaseUrl}/openai/v1/chat/completions`, {
+    let apiUrl = ''
+    let authHeader = ''
+
+    if (openaiApiKey) {
+      apiUrl = 'https://api.openai.com/v1/chat/completions'
+      authHeader = `Bearer ${openaiApiKey}`
+    } else {
+      const gatewayBaseUrl = Netlify.env.get('NETLIFY_AI_GATEWAY_BASE_URL') || 'https://api.netlify.com/api/v1/ai'
+      apiUrl = `${gatewayBaseUrl}/openai/v1/chat/completions`
+      authHeader = `Bearer ${gatewayKey}`
+    }
+
+    // Call the OpenAI completions endpoint using gpt-4o-mini for maximum speed and cost efficiency
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${gatewayKey}`,
+        'Authorization': authHeader,
       },
       body: JSON.stringify({
         model: 'gpt-4o-mini',
