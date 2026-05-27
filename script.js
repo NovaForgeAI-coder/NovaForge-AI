@@ -552,11 +552,11 @@ clearChatBtn.addEventListener("click", () => {
         <div class="message ai-message">
             <div class="message-avatar">🤖</div>
             <div class="message-bubble">
-                <p>Hey there! I am <strong>Nova</strong>, your AI creative assistant. I'm connected to the generator systems and can help you:</p>
+                <p>Hey there! I am <strong>Nova</strong>, your AI creative companion. I am fully equipped to help you:</p>
                 <ul>
-                  <li>💡 Design intricate, highly visual prompts for wallpapers &amp; logos</li>
-                  <li>🎨 Suggest the perfect aesthetic styles (e.g. Neo-cyberpunk, oil painting, watercolor)</li>
-                  <li>🚀 Enhance your descriptions for maximum image quality</li>
+                    <li>💡 <strong>Design &amp; Refine:</strong> Intricate prompts and styles for wallpapers &amp; logos</li>
+                    <li>❓ <strong>General Knowledge:</strong> Ask me any general questions or chat about any topic you like!</li>
+                    <li>🇷🇺 <strong>Russian Support:</strong> Я полностью поддерживаю русский язык и могу общаться с вами на русском!</li>
                 </ul>
                 <p>Try one of the quick suggestions below, or ask me anything!</p>
             </div>
