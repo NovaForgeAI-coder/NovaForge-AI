@@ -5,27 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>NovaForge AI</title>
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="/src/entry.ts"></script>
 </head>
 <body>
 
   <div class="background-glow"></div>
   <div class="background-glow glow-2"></div>
 
-  <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
-  <!-- NAV -->
   <nav>
     <div class="nav-logo">⚡ NovaForge AI</div>
     <div class="nav-links">
       <button class="nav-btn active" data-page="generate">Generate</button>
+      <button class="nav-btn" data-page="chat">Chat</button>
       <button class="nav-btn" data-page="styles">Styles</button>
       <button class="nav-btn" data-page="gallery">Gallery <span class="gallery-count" id="nav-count" style="display:none"></span></button>
     </div>
   </nav>
 
-  <!-- PAGE: GENERATE -->
   <section class="page active" id="page-generate">
     <header>
       <h1>Create with AI</h1>
@@ -33,17 +30,13 @@
     </header>
 
     <div class="generator-box">
-
-      <!-- MODE TABS -->
       <div class="tabs">
         <button class="active" data-mode="wallpaper">🖼 Wallpaper</button>
         <button data-mode="logo">✦ Logo</button>
       </div>
 
-      <!-- PROMPT -->
       <input type="text" id="prompt-input" placeholder="Describe your idea..." autocomplete="off">
 
-      <!-- STYLE -->
       <div class="section-label">Style</div>
       <div class="style-chips" id="style-chips">
         <button class="chip active" data-style="">None</button>
@@ -57,7 +50,6 @@
         <button class="chip" data-style="fantasy art, magical, ethereal glow, concept art, detailed">Fantasy</button>
       </div>
 
-      <!-- ASPECT RATIO -->
       <div class="section-label">Aspect Ratio</div>
       <div class="ratio-chips" id="ratio-chips">
         <button class="chip active" data-ratio="16:9">16:9</button>
@@ -67,7 +59,6 @@
         <button class="chip" data-ratio="21:9">21:9</button>
       </div>
 
-      <!-- QUALITY -->
       <div class="section-label">Quality</div>
       <div class="quality-row">
         <button class="quality-btn active" data-quality="hd">
@@ -80,7 +71,6 @@
         </button>
       </div>
 
-      <!-- ADVANCED TOGGLE -->
       <button class="advanced-toggle" id="advanced-toggle">
         <span>⚙ Advanced options</span>
         <span class="toggle-arrow" id="toggle-arrow">▾</span>
@@ -91,10 +81,7 @@
           <input type="text" id="negative-input" class="adv-input" placeholder="e.g. blurry, low quality, watermark...">
         </div>
         <div class="adv-row">
-          <label class="adv-label">
-            Seed
-            <span class="adv-hint">(same seed = reproducible result)</span>
-          </label>
+          <label class="adv-label">Seed <span class="adv-hint">(same seed = reproducible result)</span></label>
           <div class="seed-row">
             <input type="number" id="seed-input" class="adv-input seed-field" placeholder="Random" min="0" max="999999">
             <button class="seed-btn" id="seed-random-btn" title="Randomize seed">🎲</button>
@@ -103,16 +90,13 @@
         </div>
       </div>
 
-      <!-- TEXT WARNING -->
       <div class="text-warning" id="text-warning" style="display:none">
         ⚠️ AI models struggle to render names and text accurately — describe a visual scene instead.
       </div>
 
-      <!-- GENERATE -->
       <button class="generate-btn" id="generate-btn">✨ Generate</button>
     </div>
 
-    <!-- RESULT -->
     <div class="result-box" id="result-box" style="display:none">
       <div class="result-loading" id="result-loading">
         <div class="spinner"></div>
@@ -131,65 +115,30 @@
     </div>
   </section>
 
-  <!-- PAGE: STYLES -->
+  <section class="page" id="page-chat">
+    <header>
+      <h1>NovaForge Chat</h1>
+      <p>Ask anything or create images in Russian</p>
+    </header>
+    <div class="generator-box">
+      <div id="chat-messages" class="chat-messages">
+        <div class="msg bot">Привет! Я NovaForge AI. Можешь общаться со мной или просить нарисовать что-то прямо здесь.</div>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Введите сообщение...">
+        <button id="send-chat-btn">Отправить</button>
+      </div>
+    </div>
+  </section>
+
   <section class="page" id="page-styles">
     <header>
       <h1>Style Presets</h1>
       <p>Pick a style and jump straight into generating</p>
     </header>
-    <div class="styles-grid">
-      <div class="style-card" data-style="photorealistic, 8k ultra detailed, sharp focus, professional photography" data-example="a mountain at golden hour">
-        <div class="style-card-icon">📷</div>
-        <div class="style-card-name">Photorealistic</div>
-        <div class="style-card-desc">Crystal clear, ultra-detailed like a professional photo</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="cinematic, dramatic lighting, anamorphic lens, film grain, movie still" data-example="a hero standing in a rainstorm">
-        <div class="style-card-icon">🎬</div>
-        <div class="style-card-name">Cinematic</div>
-        <div class="style-card-desc">Dramatic lighting and film-grade composition</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="anime style, vibrant colors, cel shading, studio ghibli" data-example="a peaceful countryside village">
-        <div class="style-card-icon">🌸</div>
-        <div class="style-card-name">Anime</div>
-        <div class="style-card-desc">Vibrant cel-shaded art inspired by Studio Ghibli</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="neon lights, cyberpunk, synthwave, glowing outlines, dark atmosphere" data-example="a futuristic city at night">
-        <div class="style-card-icon">🌆</div>
-        <div class="style-card-name">Neon / Cyberpunk</div>
-        <div class="style-card-desc">Glowing neon lights and dark cyberpunk atmosphere</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="oil painting, brushstrokes, classical art, rich texture, canvas" data-example="a forest in autumn">
-        <div class="style-card-icon">🖌️</div>
-        <div class="style-card-name">Oil Painting</div>
-        <div class="style-card-desc">Rich brushwork with classical painting texture</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="watercolor, soft washes, dreamy, artistic, pastel tones" data-example="flowers in a meadow">
-        <div class="style-card-icon">🎨</div>
-        <div class="style-card-name">Watercolor</div>
-        <div class="style-card-desc">Soft dreamy washes with delicate pastel tones</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="minimalist, clean lines, geometric, white space, simple" data-example="a single tree on a hill">
-        <div class="style-card-icon">◻️</div>
-        <div class="style-card-name">Minimalist</div>
-        <div class="style-card-desc">Clean, simple and geometric — less is more</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-      <div class="style-card" data-style="fantasy art, magical, ethereal glow, concept art, detailed" data-example="a dragon over an enchanted castle">
-        <div class="style-card-icon">🐉</div>
-        <div class="style-card-name">Fantasy</div>
-        <div class="style-card-desc">Magical worlds and epic concept art</div>
-        <button class="style-card-btn">Use Style</button>
-      </div>
-    </div>
+    <div class="styles-grid" id="styles-grid"></div>
   </section>
 
-  <!-- PAGE: GALLERY -->
   <section class="page" id="page-gallery">
     <header>
       <h1>Your Gallery</h1>
