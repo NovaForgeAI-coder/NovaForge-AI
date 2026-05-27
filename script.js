@@ -3,7 +3,7 @@ let currentMode = "wallpaper";
 let currentStyle = "";
 let currentFilter = "all";
 let currentRatio = "16:9";
-let currentQuality = "hd";
+let currentQuality = "4k";
 let seedLocked = false;
 const history = [];
 
@@ -164,13 +164,19 @@ const regenerateBtn = document.getElementById("regenerate-btn");
 const metaRes = document.getElementById("meta-res");
 const metaStyle = document.getElementById("meta-style");
 
+const QUALITY_SUFFIX = "masterpiece, ultra high quality, highly detailed, sharp focus, professional";
+const DEFAULT_NEGATIVE = "blurry, low quality, low resolution, pixelated, jpeg artifacts, noisy, grainy, watermark, signature, oversaturated, deformed";
+
 function buildUrl(prompt) {
     const [width, height] = getDimensions();
     const seed = getSeed();
-    const negative = document.getElementById("negative-input").value.trim();
+    const userNegative = document.getElementById("negative-input").value.trim();
+    const negative = userNegative
+        ? `${DEFAULT_NEGATIVE}, ${userNegative}`
+        : DEFAULT_NEGATIVE;
     const styleTag = currentStyle ? `, ${currentStyle}` : "";
-    const negTag = negative ? `. Avoid: ${negative}` : "";
-    const fullPrompt = `${prompt}${styleTag}${negTag}`;
+    const negTag = `. Avoid: ${negative}`;
+    const fullPrompt = `${prompt}${styleTag}, ${QUALITY_SUFFIX}${negTag}`;
     const params = new URLSearchParams({
         width, height,
         model: "flux-pro",
